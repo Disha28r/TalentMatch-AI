@@ -215,16 +215,6 @@ Top 2 candidates are picked and alloted 5 interview questions based on JD
 <img width="1882" height="710" alt="image" src="https://github.com/user-attachments/assets/423e4bf8-4868-4f7e-8fb7-34349f871e32" />
 
 
-
-
-
-
-Example:
-
-- Upload Screen
-- Candidate Ranking
-- AI Interview Questions
-
 ---
 
 ## 🎯 Use Cases
@@ -256,7 +246,7 @@ If you'd like to improve TalentMatch AI:
 **Disha R**
 
 - GitHub: https://github.com/Disha28r
-- LinkedIn: *(Add your LinkedIn profile here)*
+- LinkedIn: https://www.linkedin.com/in/dishar28
 
 ---
 
