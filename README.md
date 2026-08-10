@@ -18,6 +18,20 @@ TalentMatch AI analyzes resumes, extracts structured information, calculates can
 - 📉 Identifies Lowest Matching Candidates
 - 💬 AI-generated interview questions for shortlisted candidates
 - 🌐 Interactive Streamlit interface
+  
+## Future Plans
+
+- [x] Resume Parsing
+- [x] Job Description Parsing
+- [x] AI Candidate Ranking
+- [x] AI Interview Question Generation
+- [x] Streamlit Dashboard
+- [ ] Interview Scheduling
+- [ ] Email Invitations
+- [ ] Candidate Portal
+- [ ] AI Video Interview
+- [ ] Speech-to-Text
+- [ ] AI Interview Evaluation
 
 ---
 
