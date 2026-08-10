@@ -19,19 +19,6 @@ TalentMatch AI analyzes resumes, extracts structured information, calculates can
 - 💬 AI-generated interview questions for shortlisted candidates
 - 🌐 Interactive Streamlit interface
   
-## Future Plans
-
-- [x] Resume Parsing
-- [x] Job Description Parsing
-- [x] AI Candidate Ranking
-- [x] AI Interview Question Generation
-- [x] Streamlit Dashboard
-- [ ] Interview Scheduling
-- [ ] Email Invitations
-- [ ] Candidate Portal
-- [ ] AI Video Interview
-- [ ] Speech-to-Text
-- [ ] AI Interview Evaluation
 
 ---
 
@@ -147,16 +134,17 @@ Emma — 48/100
 
 ## 💡 Future Improvements
 
-- Export results to CSV/Excel
-- Resume Skill Gap Analysis
-- Resume Improvement Suggestions
-- Candidate Comparison Dashboard
-- Recruiter Authentication
-- Database Integration
-- ATS Resume Compliance Checker
-- Resume Similarity Search using Vector Database
-- Multi-language Resume Support
-- Email shortlisted candidates automatically
+- [x] Resume Parsing
+- [x] Job Description Parsing
+- [x] AI Candidate Ranking
+- [x] AI Interview Question Generation
+- [x] Streamlit Dashboard
+- [ ] Interview Scheduling
+- [ ] Email Invitations
+- [ ] Candidate Portal
+- [ ] AI Video Interview
+- [ ] Speech-to-Text
+- [ ] AI Interview Evaluation
 
 ---
 
