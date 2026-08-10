@@ -1,15 +1,29 @@
-import streamlit as st
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+from pathlib import Path
+
+import streamlit as st
 
 from resume_parser import (
     parse_job_description,
     read_resume,
     parse_resume,
-    final_score,
-    generate_interview_questions
+    final_score
+    #generate_interview_questions
 )
+
+# ---------------- Session State ----------------
+
+if "analysis_done" not in st.session_state:
+    st.session_state.analysis_done = False
+
+if "results" not in st.session_state:
+    st.session_state.results = []
+
+if "job" not in st.session_state:
+    st.session_state.job = None
+
+
 
 st.set_page_config(
     page_title="TalentMatch AI",
@@ -19,6 +33,15 @@ st.set_page_config(
 
 st.title("🤖 TalentMatch AI")
 st.subheader("AI Resume Screening System")
+# ---------------- New Analysis ----------------
+
+if st.button("🔄 New Analysis"):
+    st.session_state.analysis_done = False
+    st.session_state.results = []
+    st.session_state.job = None
+    st.rerun()
+
+# ---------------- Inputs ----------------
 
 job_description = st.text_area(
     "📋 Paste Job Description",
@@ -30,6 +53,8 @@ uploaded_resumes = st.file_uploader(
     type=["pdf", "docx"],
     accept_multiple_files=True
 )
+
+# ---------------- Analyze ----------------
 
 if st.button("🚀 Analyze Candidates"):
 
@@ -43,105 +68,106 @@ if st.button("🚀 Analyze Candidates"):
 
         with st.spinner("Analyzing resumes... Please wait."):
 
-            job = parse_job_description(job_description)
+            if st.session_state.job is None:
+                st.session_state.job = parse_job_description(job_description)
 
-            results = []
+            job = st.session_state.job
 
-            for uploaded_file in uploaded_resumes:
+            if not st.session_state.analysis_done:
 
-                suffix = Path(uploaded_file.name).suffix
+                results = []
 
-                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
-                    temp_file.write(uploaded_file.getbuffer())
-                    temp_path = Path(temp_file.name)
+                for uploaded_file in uploaded_resumes:
 
-                resume_text = read_resume(temp_path)
+                    suffix = Path(uploaded_file.name).suffix
 
-                parsed_resume = parse_resume(resume_text)
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+                        temp_file.write(uploaded_file.getbuffer())
+                        temp_path = Path(temp_file.name)
 
-                result = final_score(job, parsed_resume)
+                    resume_text = read_resume(temp_path)
 
-                results.append({
-                    "name": parsed_resume.name,
-                    "score": result.score,
-                    "details": result.details,
-                    "resume": parsed_resume
-                })
+                    parsed_resume = parse_resume(resume_text)
 
-                os.remove(temp_path)
+                    result = final_score(job, parsed_resume)
 
-        # Sort by score
-        results.sort(key=lambda x: x["score"], reverse=True)
+                    results.append({
+                        "name": parsed_resume.name,
+                        "score": result.score,
+                        "details": result.details,
+                        "resume": parsed_resume
+                    })
 
-        top_candidates = results[:2]
-        bottom_candidates = results[-2:]
+                    os.remove(temp_path)
 
-        st.success("✅ Analysis Completed Successfully!")
+                    # Sort candidates
+                results.sort(key=lambda x: x["score"], reverse=True)
 
-        st.divider()
+                # Save results in session state
+                st.session_state.results = results
+                st.session_state.analysis_done = True
 
-        # ===========================
-        # Ranking
-        # ===========================
+# ---------------- Display Results ----------------            
 
-        st.header("🏅 Candidate Rankings")
+if st.session_state.analysis_done:
 
-        for rank, candidate in enumerate(results, start=1):
+            results = st.session_state.results
 
-            st.markdown(
-                f"### {rank}. {candidate['name']} — {candidate['score']}%"
-            )
+            top_candidates = results[:2]
+            bottom_candidates = results[-2:]
 
-            st.progress(candidate["score"] / 100)
+            st.success("✅ Analysis Completed Successfully!")
 
-        st.divider()
+            st.divider()
+            # ===========================
+            # Ranking
+            # ===========================
 
-        # ===========================
-        # Top Candidates
-        # ===========================
+            st.header("🏅 Candidate Rankings")
 
-        st.header("🏆 Top 2 Candidates")
+            for rank, candidate in enumerate(results, start=1):
 
-        for candidate in top_candidates:
-
-            st.subheader(candidate["name"])
-
-            st.progress(candidate["score"] / 100)
-
-            st.write(f"### ⭐ Match Score: {candidate['score']}%")
-
-            st.write(candidate["details"])
-
-            with st.spinner(
-                f"Generating interview questions for {candidate['name']}..."
-            ):
-
-                questions = generate_interview_questions(
-                    job,
-                    candidate["resume"]
+                st.markdown(
+                    f"### {rank}. {candidate['name']} — {candidate['score']}%"
                 )
 
-            st.markdown("### 🎤 AI Generated Interview Questions")
-
-            for i, question in enumerate(questions.questions, start=1):
-                st.write(f"**{i}.** {question}")
+                st.progress(candidate["score"] / 100)
 
             st.divider()
+        
+        
+            # scheduled_interviews = []
 
-        # ===========================
-        # Bottom Candidates
-        # ===========================
+            # ===========================
+            # Top Candidates
+            # ===========================
 
-        st.header("⚠️ Bottom 2 Candidates")
+            st.header("🏆 Top 2 Candidates")
 
-        for candidate in bottom_candidates:
+            for candidate in top_candidates:
 
-            st.subheader(candidate["name"])
+                st.subheader(candidate["name"])
 
-            st.progress(candidate["score"] / 100)
+                st.progress(candidate["score"] / 100)
 
-            st.write(f"### ⭐ Match Score: {candidate['score']}%")
+                st.write(f"### ⭐ Match Score: {candidate['score']}%")
 
-            st.write(candidate["details"])
+                st.write(candidate["details"])
+                st.divider()
+            # ===========================
+            # Bottom Candidates
+            # ===========================
 
-            st.divider()
+            st.header("⚠️ Bottom 2 Candidates")
+
+            for candidate in bottom_candidates:
+
+                st.subheader(candidate["name"])
+
+                st.progress(candidate["score"] / 100)
+
+                st.write(f"### ⭐ Match Score: {candidate['score']}%")
+
+                st.write(candidate["details"])
+
+                st.divider()
