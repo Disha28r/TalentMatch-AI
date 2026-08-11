@@ -8,12 +8,14 @@ from resume_parser import (
     parse_job_description,
     read_resume,
     parse_resume,
-    final_score
-    #generate_interview_questions
+    final_score,
+     generate_interview_questions,
 )
 
 # ---------------- Session State ----------------
-
+if "generated_questions" not in st.session_state:
+    st.session_state.generated_questions = {}
+    
 if "analysis_done" not in st.session_state:
     st.session_state.analysis_done = False
 
@@ -153,6 +155,23 @@ if st.session_state.analysis_done:
                 st.write(f"### ⭐ Match Score: {candidate['score']}%")
 
                 st.write(candidate["details"])
+                if st.button("🎤 Generate Interview Questions", key=f"generate_{candidate['name']}"):
+                    with st.spinner("Generating interview questions..."):
+
+                        questions = generate_interview_questions(st.session_state.job,candidate["resume"])
+
+                        st.session_state.generated_questions[candidate["name"]] = questions.questions
+                 # --------------------------
+                # Display Questions
+                # --------------------------
+
+                if candidate["name"] in st.session_state.generated_questions:
+
+                    st.markdown("### 🎤 Interview Questions")
+
+                    for i, question in enumerate( st.session_state.generated_questions[candidate["name"]], start=1):
+                        st.write(f"**{i}.** {question}")
+
                 st.divider()
             # ===========================
             # Bottom Candidates
