@@ -139,7 +139,7 @@ Emma — 48/100
 - [x] AI Candidate Ranking
 - [x] AI Interview Question Generation
 - [x] Streamlit Dashboard
-- [ ] Interview Scheduling
+- [x] Interview Scheduling
 - [ ] Email Invitations
 - [ ] Candidate Portal
 - [ ] AI Video Interview
