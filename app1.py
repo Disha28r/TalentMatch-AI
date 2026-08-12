@@ -13,6 +13,9 @@ from resume_parser import (
 )
 
 # ---------------- Session State ----------------
+if "scheduled_interviews" not in st.session_state:
+    st.session_state.scheduled_interviews = []
+    
 if "generated_questions" not in st.session_state:
     st.session_state.generated_questions = {}
     
@@ -172,12 +175,72 @@ if st.session_state.analysis_done:
                     for i, question in enumerate( st.session_state.generated_questions[candidate["name"]], start=1):
                         st.write(f"**{i}.** {question}")
 
+                    st.divider()
+                    
+                    st.markdown("## 📅 Schedule Interview")
+                    #date picker
+                    interview_date = st.date_input(
+                        "Interview Date",
+                        key=f"date_{candidate['name']}"
+                    )
+                    #time picker
+                    interview_time = st.time_input(
+                        "Interview Time",
+                        key=f"time_{candidate['name']}"
+                    )
+                    interview_mode = st.selectbox(
+                        "Interview Mode",
+                        ["Online", "Offline"],
+                        key=f"mode_{candidate['name']}"
+                    )
+                    if st.button("📅 Schedule Interview",key=f"schedule_{candidate['name']}"):
+                        already_scheduled = any(
+                            interview["candidate"] == candidate["name"]
+                            for interview in st.session_state.scheduled_interviews
+                        )
+
+                        if already_scheduled:
+                            st.warning("⚠️ Interview already scheduled for this candidate.")
+                        else:
+                            st.session_state.scheduled_interviews.append({
+
+                                "candidate": candidate["name"],
+
+                                "date": interview_date,
+
+                                "time": interview_time,
+
+                                "mode": interview_mode,
+
+                                "status": "Scheduled",
+
+                                "questions": st.session_state.generated_questions[
+                                    candidate["name"]
+                                ]
+                            })
+                            st.success("✅ Interview Scheduled Successfully!")
                 st.divider()
+                        
+            st.header("📅 Scheduled Interviews")
+            if st.session_state.scheduled_interviews:
+
+                    for interview in st.session_state.scheduled_interviews:
+
+                        with st.container(border=True):
+
+                            st.subheader(f"Interview Scheduled for {interview['candidate']}")
+
+                            st.write(f"📅 Date: {interview['date']}")
+                            st.write(f"🕒 Time: {interview['time']}")
+                            st.write(f"💻 Mode: {interview['mode']}")
+                            st.write(f"📌 Status: {interview['status']}")
+     
+                        st.divider()
             # ===========================
             # Bottom Candidates
             # ===========================
 
-            st.header("⚠️ Bottom 2 Candidates")
+            st.header("❌ Not Shortlisted Candidates")
 
             for candidate in bottom_candidates:
 
