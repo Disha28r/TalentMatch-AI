@@ -140,7 +140,7 @@ Emma — 48/100
 - [x] AI Interview Question Generation
 - [x] Streamlit Dashboard
 - [x] Interview Scheduling
-- [ ] Email Invitations
+- [x] Email Invitations
 - [ ] Candidate Portal
 - [ ] AI Video Interview
 - [ ] Speech-to-Text
@@ -234,7 +234,6 @@ Top 2 candidates are picked and alloted 5 interview questions based on JD
 
 **Disha R**
 
-- GitHub: https://github.com/Disha28r
 - LinkedIn: https://www.linkedin.com/in/dishar28
 
 ---
