@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 import streamlit as st
+from email_service import send_interview_email
 
 from resume_parser import (
     parse_job_description,
@@ -119,7 +120,7 @@ if st.session_state.analysis_done:
             results = st.session_state.results
 
             top_candidates = results[:2]
-            bottom_candidates = results[-2:]
+            bottom_candidates = results[2:]
 
             st.success("✅ Analysis Completed Successfully!")
 
@@ -234,6 +235,36 @@ if st.session_state.analysis_done:
                             st.write(f"🕒 Time: {interview['time']}")
                             st.write(f"💻 Mode: {interview['mode']}")
                             st.write(f"📌 Status: {interview['status']}")
+                            
+                            receiver_email = st.text_input(
+                                "Candidate Email",
+                                key=f"email_{interview['candidate']}"
+                            )
+
+                            if st.button(
+                                "📧 Send Invitation",
+                                key=f"send_{interview['candidate']}"
+                            ):
+
+                                result = send_interview_email(
+
+                                    receiver_email,
+
+                                    interview["candidate"],
+
+                                    interview["date"],
+
+                                    interview["time"],
+
+                                    interview["mode"]
+
+                                )
+
+                                if result is True:
+                                    st.success("✅ Invitation Sent Successfully!")
+
+                                else:
+                                    st.error(result)
      
                         st.divider()
             # ===========================
