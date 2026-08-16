@@ -1,5 +1,6 @@
 import os
 import tempfile
+import uuid
 from pathlib import Path
 
 import streamlit as st
@@ -204,6 +205,8 @@ if st.session_state.analysis_done:
                             st.warning("⚠️ Interview already scheduled for this candidate.")
                         else:
                             st.session_state.scheduled_interviews.append({
+                                
+                                "interview_id": str(uuid.uuid4()),
 
                                 "candidate": candidate["name"],
 
@@ -236,6 +239,19 @@ if st.session_state.analysis_done:
                             st.write(f"💻 Mode: {interview['mode']}")
                             st.write(f"📌 Status: {interview['status']}")
                             
+                            st.write(f"🔑 Interview ID: {interview['interview_id']}")
+                            
+                            # --------------------------
+                            # Join Interview Link
+                            # --------------------------
+
+                            interview_link = (
+                                f"http://localhost:8502/?interview_id="
+                                f"{interview['interview_id']}"
+                            )
+
+                            st.write(f"🔗 Join Link: {interview_link}")
+                            
                             receiver_email = st.text_input(
                                 "Candidate Email",
                                 key=f"email_{interview['candidate']}"
@@ -256,7 +272,8 @@ if st.session_state.analysis_done:
 
                                     interview["time"],
 
-                                    interview["mode"]
+                                    interview["mode"],
+                                    interview_link
 
                                 )
 

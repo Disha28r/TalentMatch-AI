@@ -12,7 +12,8 @@ def send_interview_email(
     candidate_name,
     interview_date,
     interview_time,
-    interview_mode
+    interview_mode,
+    interview_link
 ):
         sender_email = os.getenv("EMAIL_ADDRESS")
         app_password = os.getenv("EMAIL_APP_PASSWORD")
@@ -33,6 +34,9 @@ Interview Details
 🕒 Time: {interview_time}
 
 💻 Mode: {interview_mode}
+
+🎤 Join Interview:
+{interview_link}
 
 Please be available 10 minutes before your scheduled interview.
 
