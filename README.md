@@ -141,7 +141,7 @@ Emma — 48/100
 - [x] Streamlit Dashboard
 - [x] Interview Scheduling
 - [x] Email Invitations
-- [ ] Candidate Portal
+- [x] Candidate Portal
 - [ ] AI Video Interview
 - [ ] Speech-to-Text
 - [ ] AI Interview Evaluation
