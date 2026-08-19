@@ -1,6 +1,7 @@
 import os
 import tempfile
 import uuid
+import json
 from pathlib import Path
 
 import streamlit as st
@@ -204,15 +205,17 @@ if st.session_state.analysis_done:
                         if already_scheduled:
                             st.warning("⚠️ Interview already scheduled for this candidate.")
                         else:
-                            st.session_state.scheduled_interviews.append({
-                                
-                                "interview_id": str(uuid.uuid4()),
+                            interview_id = str(uuid.uuid4())
+
+                            interview_data = {
+
+                                "interview_id": interview_id,
 
                                 "candidate": candidate["name"],
 
-                                "date": interview_date,
+                                "date": str(interview_date),
 
-                                "time": interview_time,
+                                "time": str(interview_time),
 
                                 "mode": interview_mode,
 
@@ -221,7 +224,18 @@ if st.session_state.analysis_done:
                                 "questions": st.session_state.generated_questions[
                                     candidate["name"]
                                 ]
-                            })
+                            }
+
+                            st.session_state.scheduled_interviews.append(interview_data)
+
+                            # Save interview data to JSON
+                            with open("interviews.json", "r") as file:
+                                interviews = json.load(file)
+
+                            interviews[interview_id] = interview_data
+
+                            with open("interviews.json", "w") as file:
+                                json.dump(interviews, file, indent=4)
                             st.success("✅ Interview Scheduled Successfully!")
                 st.divider()
                         
@@ -239,7 +253,7 @@ if st.session_state.analysis_done:
                             st.write(f"💻 Mode: {interview['mode']}")
                             st.write(f"📌 Status: {interview['status']}")
                             
-                            st.write(f"🔑 Interview ID: {interview['interview_id']}")
+                            
                             
                             # --------------------------
                             # Join Interview Link
@@ -250,7 +264,7 @@ if st.session_state.analysis_done:
                                 f"{interview['interview_id']}"
                             )
 
-                            st.write(f"🔗 Join Link: {interview_link}")
+                            
                             
                             receiver_email = st.text_input(
                                 "Candidate Email",

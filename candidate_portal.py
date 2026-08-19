@@ -1,5 +1,44 @@
+import json
 import streamlit as st
 
+# ---------------- Interview ID ----------------
+
+interview_id = st.query_params.get("interview_id")
+
+
+# ---------------- Load Interview ----------------
+
+if not interview_id:
+
+    st.error("❌ Invalid interview link.")
+
+    st.stop()
+
+
+with open("interviews.json", "r") as file:
+
+    interviews = json.load(file)
+
+
+if interview_id not in interviews:
+
+    st.error("❌ Interview not found.")
+
+    st.stop()
+
+
+interview = interviews[interview_id]
+
+
+# ---------------- Interview Data ----------------
+
+candidate_name = interview["candidate"]
+interview_date = interview["date"]
+interview_mode = interview["mode"]
+questions = interview["questions"]
+
+
+# ---------------- Page Configuration ----------------
 
 st.set_page_config(
     page_title="TalentMatch AI - Interview Portal",
@@ -7,14 +46,12 @@ st.set_page_config(
     layout="centered"
 )
 
+
 st.title("🤖 TalentMatch AI")
 st.subheader("🎤 Interview Portal")
 
 st.divider()
 
-candidate_name = "Disha"
-interview_date = "14 August 2026"
-interview_mode = "Online"
 st.header(f"Welcome, {candidate_name}! 👋")
 
 st.write(
@@ -43,16 +80,13 @@ st.write(f"**Mode:** {interview_mode}")
 
 st.divider()
 
-questions = [
-    "Tell us about yourself.",
-    "Describe your experience with Python.",
-    "How would you design an AI application?",
-    "Tell us about a challenging project you worked on.",
-    "Why are you interested in this role?"
-]
+
+# ---------------- Start Interview ----------------
 
 if "interview_started" not in st.session_state:
+
     st.session_state.interview_started = False
+
 
 if st.button("🎤 Start Interview"):
 
