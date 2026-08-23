@@ -22,3 +22,6 @@ Thumbs.db
 
 # Sample resumes
 resumes/
+
+#interview data
+interviews.json

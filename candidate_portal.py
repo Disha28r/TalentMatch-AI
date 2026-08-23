@@ -1,6 +1,6 @@
 import json
 import streamlit as st
-
+from interview_evaluator import evaluate_interview
 # ---------------- Interview ID ----------------
 
 interview_id = st.query_params.get("interview_id")
@@ -97,8 +97,63 @@ if st.session_state.interview_started:
 
     st.success("✅ Interview started!")
 
-    st.markdown("### 🎤 Interview Questions")
+    # --------------------------
+    # Current Question
+    # --------------------------
 
-    for i, question in enumerate(questions, start=1):
+    if "current_question" not in st.session_state:
+        st.session_state.current_question = 0
 
-        st.write(f"**Q{i}.** {question}")
+    if "answers" not in st.session_state:
+        st.session_state.answers = {}
+
+    current_question = st.session_state.current_question
+
+    st.markdown(
+        f"### 🎤 Question {current_question + 1} of {len(questions)}"
+    )
+
+    st.write(questions[current_question])
+
+    # --------------------------
+    # Candidate Answer
+    # --------------------------
+
+    answer = st.text_area(
+        "📝 Your Answer",
+        key=f"answer_{current_question}",
+        height=150
+    )
+
+    # --------------------------
+    # Next Question
+    # --------------------------
+
+    if current_question < len(questions) - 1:
+
+        if st.button("Next →"):
+
+            st.session_state.answers[current_question] = answer
+
+            st.session_state.current_question += 1
+
+            st.rerun()
+
+    else:
+
+        if st.button("🏁 Submit Interview"):
+
+            st.session_state.answers[current_question] = answer
+
+            with st.spinner("🤖 Evaluating your interview..."):
+
+                evaluation = evaluate_interview(
+                    questions,
+                    st.session_state.answers
+                )
+
+            st.success("🎉 Interview submitted successfully!")
+
+            st.markdown("### 📊 Interview Evaluation")
+
+            st.write(evaluation)
