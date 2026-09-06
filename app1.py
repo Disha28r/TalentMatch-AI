@@ -2,6 +2,7 @@ import os
 import tempfile
 import uuid
 import json
+import requests
 from pathlib import Path
 
 import streamlit as st
@@ -226,17 +227,36 @@ if st.session_state.analysis_done:
                                 ]
                             }
 
-                            st.session_state.scheduled_interviews.append(interview_data)
+                            response = requests.post(
+                                "http://127.0.0.1:8000/interviews",
+                                json={
+                                    "interview_id": interview_data["interview_id"],
+                                    "candidate": interview_data["candidate"],
+                                    "date": interview_data["date"],
+                                    "time": interview_data["time"],
+                                    "mode": interview_data["mode"]
+                                }
+                            )
 
-                            # Save interview data to JSON
-                            with open("interviews.json", "r") as file:
-                                interviews = json.load(file)
+                            if response.status_code == 200:
 
-                            interviews[interview_id] = interview_data
+                                st.session_state.scheduled_interviews.append(interview_data)
 
-                            with open("interviews.json", "w") as file:
-                                json.dump(interviews, file, indent=4)
-                            st.success("✅ Interview Scheduled Successfully!")
+                                # Save interview data to JSON
+                                with open("interviews.json", "r") as file:
+                                    interviews = json.load(file)
+
+                                interviews[interview_id] = interview_data
+
+                                with open("interviews.json", "w") as file:
+                                    json.dump(interviews, file, indent=4)
+
+                                st.success("✅ Interview Scheduled Successfully!")
+
+                            else:
+
+                                st.error("❌ Failed to save interview to database.")
+                                st.write(response.text)
                 st.divider()
                         
             st.header("📅 Scheduled Interviews")
