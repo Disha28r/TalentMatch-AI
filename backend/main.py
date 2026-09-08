@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from backend.database import get_connection
+from psycopg.types.json import Json
 
 app = FastAPI(
     title="TalentMatch AI API",
@@ -15,6 +16,7 @@ class Interview(BaseModel):
     date: str
     time: str
     mode: str
+    questions: list[str]
 
 
 @app.get("/")
@@ -35,46 +37,39 @@ def health_check():
 @app.post("/interviews")
 def create_interview(interview: Interview):
 
-    return {
-        "message": "Interview created successfully",
-        "interview": interview
-    }
-    
-@app.get("/interviews")
-def get_interviews():
-
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("""
-        SELECT
+    cursor.execute(
+        """
+        INSERT INTO interviews (
             interview_id,
             candidate,
             interview_date,
             interview_time,
-            mode
-        FROM interviews
-        ORDER BY interview_date, interview_time;
-    """)
+            mode,
+            questions
+        )
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (
+            interview.interview_id,
+            interview.candidate,
+            interview.date,
+            interview.time,
+            interview.mode,
+            Json(interview.questions)
+        )
+    )
 
-    rows = cursor.fetchall()
-
-    interviews = []
-
-    for row in rows:
-        interviews.append({
-            "interview_id": row[0],
-            "candidate": row[1],
-            "date": str(row[2]),
-            "time": str(row[3]),
-            "mode": row[4]
-        })
+    connection.commit()
 
     cursor.close()
     connection.close()
 
     return {
-        "interviews": interviews
+        "message": "Interview created successfully",
+        "interview_id": interview.interview_id
     }
     
 @app.get("/interviews/{interview_id}")
@@ -90,7 +85,8 @@ def get_interview(interview_id: str):
             candidate,
             interview_date,
             interview_time,
-            mode
+            mode,
+            questions
         FROM interviews
         WHERE interview_id = %s;
         """,
@@ -112,5 +108,6 @@ def get_interview(interview_id: str):
         "candidate": row[1],
         "date": str(row[2]),
         "time": str(row[3]),
-        "mode": row[4]
+        "mode": row[4],
+        "questions": row[5]
     }

@@ -234,7 +234,8 @@ if st.session_state.analysis_done:
                                     "candidate": interview_data["candidate"],
                                     "date": interview_data["date"],
                                     "time": interview_data["time"],
-                                    "mode": interview_data["mode"]
+                                    "mode": interview_data["mode"],
+                                    "questions": interview_data["questions"]
                                 }
                             )
 

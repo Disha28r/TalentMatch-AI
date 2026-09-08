@@ -1,4 +1,5 @@
 import json
+import requests
 import streamlit as st
 from interview_evaluator import evaluate_interview
 # ---------------- Interview ID ----------------
@@ -15,19 +16,18 @@ if not interview_id:
     st.stop()
 
 
-with open("interviews.json", "r") as file:
+response = requests.get(
+    f"http://127.0.0.1:8000/interviews/{interview_id}"
+)
 
-    interviews = json.load(file)
-
-
-if interview_id not in interviews:
+if response.status_code != 200:
 
     st.error("❌ Interview not found.")
 
     st.stop()
 
 
-interview = interviews[interview_id]
+interview = response.json()
 
 
 # ---------------- Interview Data ----------------
