@@ -1,7 +1,6 @@
 import os
 import tempfile
 import uuid
-import json
 import requests
 from pathlib import Path
 
@@ -242,16 +241,6 @@ if st.session_state.analysis_done:
                             if response.status_code == 200:
 
                                 st.session_state.scheduled_interviews.append(interview_data)
-
-                                # Save interview data to JSON
-                                with open("interviews.json", "r") as file:
-                                    interviews = json.load(file)
-
-                                interviews[interview_id] = interview_data
-
-                                with open("interviews.json", "w") as file:
-                                    json.dump(interviews, file, indent=4)
-
                                 st.success("✅ Interview Scheduled Successfully!")
 
                             else:

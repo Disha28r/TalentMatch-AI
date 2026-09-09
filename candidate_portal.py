@@ -1,4 +1,3 @@
-import json
 import requests
 import streamlit as st
 from interview_evaluator import evaluate_interview
