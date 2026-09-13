@@ -1,5 +1,8 @@
 import requests
 import streamlit as st
+import whisper
+import hashlib
+from audio_recorder_streamlit import audio_recorder
 from interview_evaluator import evaluate_interview
 # ---------------- Interview ID ----------------
 
@@ -85,6 +88,9 @@ st.divider()
 if "interview_started" not in st.session_state:
 
     st.session_state.interview_started = False
+    
+if "interview_completed" not in st.session_state:
+    st.session_state.interview_completed = False
 
 
 if st.button("🎤 Start Interview"):
@@ -105,6 +111,12 @@ if st.session_state.interview_started:
 
     if "answers" not in st.session_state:
         st.session_state.answers = {}
+        
+    if "transcripts" not in st.session_state:
+        st.session_state.transcripts = {}
+        
+    if "last_audio_hash" not in st.session_state:
+        st.session_state.last_audio_hash = None
 
     current_question = st.session_state.current_question
 
@@ -113,6 +125,38 @@ if st.session_state.interview_started:
     )
 
     st.write(questions[current_question])
+    st.write("🎙️ Or answer by speaking:")
+
+    audio = audio_recorder(
+    text="🎙️ Record Answer",
+    recording_color="#ff4b4b",
+    neutral_color="#6c757d",
+    icon_name="microphone",
+    icon_size="2x"
+    )
+
+    if audio:
+        audio_hash = hashlib.md5(audio).hexdigest()
+
+        if audio_hash != st.session_state.last_audio_hash:
+
+            st.session_state.last_audio_hash = audio_hash
+
+            with st.spinner("🤖 Transcribing your answer..."):
+                model = whisper.load_model("base")
+
+                with open("answer.wav", "wb") as f:
+                    f.write(audio)
+
+                result = model.transcribe("answer.wav")
+
+            transcript = result["text"]
+
+            st.session_state.transcripts[current_question] = transcript
+            st.session_state[f"answer_{current_question}"] = transcript
+
+            st.success("✅ Transcription complete!")
+
 
     # --------------------------
     # Candidate Answer
@@ -136,23 +180,32 @@ if st.session_state.interview_started:
 
             st.session_state.current_question += 1
 
+            next_question = st.session_state.current_question
+
+            st.session_state[f"answer_{next_question}"] = ""
+            st.session_state.transcripts[next_question] = ""
+
             st.rerun()
 
     else:
 
-        if st.button("🏁 Submit Interview"):
+        if not st.session_state.interview_completed:
 
-            st.session_state.answers[current_question] = answer
+            if st.button("🏁 Submit Interview"):
 
-            with st.spinner("🤖 Evaluating your interview..."):
+                st.session_state.answers[current_question] = answer
 
-                evaluation = evaluate_interview(
-                    questions,
-                    st.session_state.answers
-                )
+                st.session_state.interview_completed = True
 
-            st.success("🎉 Interview submitted successfully!")
+                with st.spinner("🤖 Evaluating your interview..."):
 
-            st.markdown("### 📊 Interview Evaluation")
+                    evaluation = evaluate_interview(
+                        questions,
+                        st.session_state.answers
+                    )
 
-            st.write(evaluation)
+                st.success("🎉 Interview submitted successfully!")
+
+                st.markdown("### 📊 Interview Evaluation")
+
+                st.write(evaluation)

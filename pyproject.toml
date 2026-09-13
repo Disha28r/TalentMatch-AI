@@ -5,8 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "audio-recorder-streamlit>=0.0.10",
     "fastapi>=0.141.1",
     "groq>=1.6.0",
+    "openai-whisper>=20250625",
     "psycopg[binary]>=3.3.4",
     "pydantic>=2.13.4",
     "pypdf>=6.14.2",
