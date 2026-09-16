@@ -192,9 +192,7 @@ if st.session_state.interview_started:
         if not st.session_state.interview_completed:
 
             if st.button("🏁 Submit Interview"):
-
                 st.session_state.answers[current_question] = answer
-
                 st.session_state.interview_completed = True
 
                 with st.spinner("🤖 Evaluating your interview..."):
@@ -204,8 +202,62 @@ if st.session_state.interview_started:
                         st.session_state.answers
                     )
 
-                st.success("🎉 Interview submitted successfully!")
+                    evaluation_response = requests.put(
+                        f"http://127.0.0.1:8000/interviews/{interview_id}/evaluation",
+                        json=evaluation.model_dump()
+                    )
 
-                st.markdown("### 📊 Interview Evaluation")
+                if evaluation_response.status_code == 200:
+                    st.success("🎉 Interview submitted successfully!")
+                else:
+                    st.error("❌ Failed to save interview evaluation.")
+                    st.write(evaluation_response.text)
 
-                st.write(evaluation)
+                st.markdown("## 📊 Interview Evaluation")
+
+                st.metric(
+                    "Overall Score",
+                    f"{evaluation.overall_score} / 100"
+                )
+
+                st.divider()
+
+                col1, col2, col3 = st.columns(3)
+
+                with col1:
+                    st.metric(
+                        "Technical Knowledge",
+                        f"{evaluation.technical_knowledge} / 100"
+                    )
+
+                with col2:
+                    st.metric(
+                        "Communication",
+                        f"{evaluation.communication} / 100"
+                    )
+
+                with col3:
+                    st.metric(
+                        "Problem Solving",
+                        f"{evaluation.problem_solving} / 100"
+                    )
+
+                st.divider()
+
+                st.markdown("### 💪 Strengths")
+
+                for strength in evaluation.strengths:
+                    st.write(f"• {strength}")
+
+                st.markdown("### 📈 Areas for Improvement")
+
+                for area in evaluation.areas_for_improvement:
+                    st.write(f"• {area}")
+
+                st.markdown("### 🎯 Recommendation")
+
+                st.info(evaluation.recommendation)
+
+                st.markdown("### 💬 Brief Feedback")
+
+                st.write(evaluation.brief_feedback)

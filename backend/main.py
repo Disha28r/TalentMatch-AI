@@ -17,6 +17,16 @@ class Interview(BaseModel):
     time: str
     mode: str
     questions: list[str]
+    
+class InterviewEvaluation(BaseModel):
+    overall_score: int
+    technical_knowledge: int
+    communication: int
+    problem_solving: int
+    strengths: list[str]
+    areas_for_improvement: list[str]
+    recommendation: str
+    brief_feedback: str
 
 
 @app.get("/")
@@ -110,4 +120,49 @@ def get_interview(interview_id: str):
         "time": str(row[3]),
         "mode": row[4],
         "questions": row[5]
+    }
+    
+@app.put("/interviews/{interview_id}/evaluation")
+def save_evaluation(
+    interview_id: str,
+    evaluation: InterviewEvaluation
+):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        UPDATE interviews
+        SET
+            overall_score = %s,
+            technical_knowledge = %s,
+            communication = %s,
+            problem_solving = %s,
+            strengths = %s,
+            areas_for_improvement = %s,
+            recommendation = %s,
+            brief_feedback = %s
+        WHERE interview_id = %s;
+        """,
+        (
+            evaluation.overall_score,
+            evaluation.technical_knowledge,
+            evaluation.communication,
+            evaluation.problem_solving,
+            Json(evaluation.strengths),
+            Json(evaluation.areas_for_improvement),
+            evaluation.recommendation,
+            evaluation.brief_feedback,
+            interview_id
+        )
+    )
+
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    return {
+        "message": "Evaluation saved successfully",
+        "interview_id": interview_id
     }
