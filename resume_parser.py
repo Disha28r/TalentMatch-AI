@@ -24,6 +24,94 @@ class JobD(BaseModel):
     minimum_experience: float | None
     education_requirements: list[str]
     responsibilities: list[str]
+    
+class SkillGapAnalysis(BaseModel):
+    matched_skills: list[str]
+    missing_required_skills: list[str]
+    missing_preferred_skills: list[str]
+    partially_matched_skills: list[str]
+    skill_gap_summary: str
+    recommendations: list[str]
+    
+def analyze_skill_gap(job, resume):
+
+    prompt = f"""
+    You are an expert technical recruiter.
+
+    Analyze the skill gap between the Job Description and the Candidate Resume.
+
+    JOB DESCRIPTION:
+    {job.model_dump_json(indent=2)}
+
+    CANDIDATE RESUME:
+    {resume.model_dump_json(indent=2)}
+
+    Compare the candidate's skills, experience, and projects against
+    the required and preferred skills in the job description.
+
+    Rules:
+
+   1. matched_skills:
+   Include skills that the candidate clearly demonstrates at a sufficient level.
+   A skill must NOT also appear in partially_matched_skills.
+
+    2. missing_required_skills:
+    Include required skills that are not demonstrated by the candidate.
+    A skill must NOT also appear in matched_skills or partially_matched_skills.
+
+    3. missing_preferred_skills:
+    Include preferred skills that are not demonstrated by the candidate.
+
+    4. partially_matched_skills:
+   Include skills where the candidate demonstrates some knowledge or related
+   experience, but not enough evidence to consider the skill fully matched.
+
+   If a required skill is partially demonstrated, classify it only as
+   partially_matched_skills and do not also place it in
+   missing_required_skills.
+
+   A partially matched skill must NOT also appear in matched_skills
+   or missing_required_skills.
+   
+    5. Each skill or requirement should appear in only ONE category:
+   - matched_skills
+   - partially_matched_skills
+   - missing_required_skills
+   - missing_preferred_skills
+
+   Never duplicate the same skill or requirement across categories.
+    
+    6. skill_gap_summary:
+       Give a concise summary of the candidate's main skill gaps.
+
+    7. recommendations:
+       Provide practical areas the candidate could improve.
+
+    Do not invent skills or experience.
+
+    Return JSON matching this schema:
+
+    {SkillGapAnalysis.model_json_schema()}
+    """
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are an expert technical recruiter."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        response_format={"type": "json_object"}
+    )
+
+    data = json.loads(response.choices[0].message.content)
+
+    return SkillGapAnalysis(**data)
 
 jobd_schema = JobD.model_json_schema()
 

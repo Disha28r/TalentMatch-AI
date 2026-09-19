@@ -13,6 +13,7 @@ from resume_parser import (
     parse_resume,
     final_score,
      generate_interview_questions,
+     analyze_skill_gap
 )
 
 # ---------------- Session State ----------------
@@ -161,6 +162,47 @@ if st.session_state.analysis_done:
                 st.write(f"### ⭐ Match Score: {candidate['score']}%")
 
                 st.write(candidate["details"])
+                if st.button(
+                    "🔍 Analyze Skill Gap",
+                    key=f"skill_gap_{candidate['name']}"
+                ):
+                    with st.spinner("Analyzing skill gap..."):
+
+                        skill_gap = analyze_skill_gap(
+                            st.session_state.job,
+                            candidate["resume"]
+                        )
+
+                        st.markdown("### 🔍 Skill Gap Analysis")
+
+                        st.markdown("#### ✅ Matched Skills")
+
+                        for skill in skill_gap.matched_skills:
+                            st.write(f"• {skill}")
+
+                        st.markdown("#### ⚠️ Missing Required Skills")
+
+                        for skill in skill_gap.missing_required_skills:
+                            st.write(f"• {skill}")
+
+                        st.markdown("#### ⭐ Missing Preferred Skills")
+
+                        for skill in skill_gap.missing_preferred_skills:
+                            st.write(f"• {skill}")
+
+                        st.markdown("#### 🟡 Partially Matched Skills")
+
+                        for skill in skill_gap.partially_matched_skills:
+                            st.write(f"• {skill}")
+
+                        st.markdown("#### 📝 Skill Gap Summary")
+
+                        st.write(skill_gap.skill_gap_summary)
+
+                        st.markdown("#### 📚 Recommendations")
+
+                        for recommendation in skill_gap.recommendations:
+                            st.write(f"• {recommendation}")
                 if st.button("🎤 Generate Interview Questions", key=f"generate_{candidate['name']}"):
                     with st.spinner("Generating interview questions..."):
 
