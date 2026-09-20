@@ -26,3 +26,7 @@ resumes/
 #interview data
 interviews.jsonanswer.wav
 answer.wav
+
+# Candidate interview recordings
+*.mp4
+*.webm
