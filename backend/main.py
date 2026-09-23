@@ -27,6 +27,19 @@ class InterviewEvaluation(BaseModel):
     areas_for_improvement: list[str]
     recommendation: str
     brief_feedback: str
+    
+class Candidate(BaseModel):
+    candidate_id: str
+    name: str
+    resume_score: int
+    resume_details: str
+    matched_skills: list[str] = []
+    missing_required_skills: list[str] = []
+    missing_preferred_skills: list[str] = []
+    partially_matched_skills: list[str] = []
+    skill_gap_summary: str = ""
+    recommendations: list[str] = []
+    selection_status: str = "Pending"
 
 
 @app.get("/")
@@ -165,4 +178,91 @@ def save_evaluation(
     return {
         "message": "Evaluation saved successfully",
         "interview_id": interview_id
+    }
+    
+    
+@app.post("/candidates")
+def create_candidate(candidate: Candidate):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO candidates (
+            candidate_id,
+            name,
+            resume_score,
+            resume_details,
+            matched_skills,
+            missing_required_skills,
+            missing_preferred_skills,
+            partially_matched_skills,
+            skill_gap_summary,
+            recommendations,
+            selection_status
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """,
+        (
+            candidate.candidate_id,
+            candidate.name,
+            candidate.resume_score,
+            candidate.resume_details,
+            Json(candidate.matched_skills),
+            Json(candidate.missing_required_skills),
+            Json(candidate.missing_preferred_skills),
+            Json(candidate.partially_matched_skills),
+            candidate.skill_gap_summary,
+            Json(candidate.recommendations),
+            candidate.selection_status
+        )
+    )
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return {
+        "message": "Candidate created successfully",
+        "candidate_id": candidate.candidate_id
+    }
+    
+@app.put("/candidates/{candidate_id}/skill-gap")
+def update_skill_gap(
+    candidate_id: str,
+    skill_gap: dict
+):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        UPDATE candidates
+        SET
+            matched_skills = %s,
+            missing_required_skills = %s,
+            missing_preferred_skills = %s,
+            partially_matched_skills = %s,
+            skill_gap_summary = %s,
+            recommendations = %s
+        WHERE candidate_id = %s;
+        """,
+        (
+            Json(skill_gap["matched_skills"]),
+            Json(skill_gap["missing_required_skills"]),
+            Json(skill_gap["missing_preferred_skills"]),
+            Json(skill_gap["partially_matched_skills"]),
+            skill_gap["skill_gap_summary"],
+            Json(skill_gap["recommendations"]),
+            candidate_id
+        )
+    )
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return {
+        "message": "Skill gap updated successfully",
+        "candidate_id": candidate_id
     }

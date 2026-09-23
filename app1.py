@@ -1,4 +1,5 @@
 import os
+import json
 import tempfile
 import uuid
 import requests
@@ -100,12 +101,40 @@ if st.button("🚀 Analyze Candidates"):
 
                     result = final_score(job, parsed_resume)
 
+                    candidate_id = str(uuid.uuid4())
+
                     results.append({
+                        "candidate_id": candidate_id,
                         "name": parsed_resume.name,
                         "score": result.score,
                         "details": result.details,
                         "resume": parsed_resume
                     })
+
+                    candidate_data = {
+                        "candidate_id": candidate_id,
+                        "name": parsed_resume.name,
+                        "resume_score": result.score,
+                        "resume_details": json.dumps(result.details),
+                        "matched_skills": [],
+                        "missing_required_skills": [],
+                        "missing_preferred_skills": [],
+                        "partially_matched_skills": [],
+                        "skill_gap_summary": "",
+                        "recommendations": [],
+                        "selection_status": "Pending"
+                    }
+
+                    response = requests.post(
+                        "http://127.0.0.1:8000/candidates",
+                        json=candidate_data
+                    )
+
+                    if response.status_code != 200:
+                        st.error(
+                            f"Failed to save candidate {parsed_resume.name}: "
+                            f"{response.text}"
+                        )
 
                     os.remove(temp_path)
 
@@ -172,6 +201,26 @@ if st.session_state.analysis_done:
                             st.session_state.job,
                             candidate["resume"]
                         )
+                        skill_gap_data = {
+                            "matched_skills": skill_gap.matched_skills,
+                            "missing_required_skills": skill_gap.missing_required_skills,
+                            "missing_preferred_skills": skill_gap.missing_preferred_skills,
+                            "partially_matched_skills": skill_gap.partially_matched_skills,
+                            "skill_gap_summary": skill_gap.skill_gap_summary,
+                            "recommendations": skill_gap.recommendations
+                        }
+
+                        response = requests.put(
+                            f"http://127.0.0.1:8000/candidates/{candidate['candidate_id']}/skill-gap",
+                            json=skill_gap_data
+                        )
+
+                        if response.status_code == 200:
+                            st.success("✅ Skill gap saved successfully!")
+                        else:
+                            st.error(
+                                f"Failed to save skill gap: {response.text}"
+                            )
 
                         st.markdown("### 🔍 Skill Gap Analysis")
 
