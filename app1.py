@@ -4,6 +4,7 @@ import tempfile
 import uuid
 import requests
 from pathlib import Path
+import pandas as pd
 
 import streamlit as st
 from email_service import send_interview_email
@@ -416,3 +417,145 @@ if st.session_state.analysis_done:
                 st.write(candidate["details"])
 
                 st.divider()
+                
+                
+st.divider()
+
+st.header("📊 Recruiter Dashboard")
+
+response = requests.get("http://127.0.0.1:8000/candidates")
+
+if response.status_code == 200:
+
+    candidates = response.json()
+
+    if candidates:
+
+        search_name = st.text_input(
+            "🔎 Search candidate",
+            placeholder="Enter candidate name..."
+        )
+
+        min_score = st.slider(
+            "🎯 Minimum resume score",
+            min_value=0,
+            max_value=100,
+            value=0
+        )
+        status_filter = st.selectbox(
+            "📌 Selection Status",
+            ["All", "Pending", "Selected", "Rejected"]
+        )
+
+        filtered_candidates = [
+            candidate
+            for candidate in candidates
+            if search_name.lower() in candidate["name"].lower()
+            and (candidate["resume_score"] or 0) >= min_score
+            and (
+                status_filter == "All"
+                or candidate["selection_status"] == status_filter
+            )
+        ]
+
+        st.subheader(
+            f"Candidates ({len(filtered_candidates)})"
+        )
+        export_data = []
+
+        for candidate in filtered_candidates:
+            export_data.append({
+                "Candidate": candidate["name"],
+                "Resume Score": candidate["resume_score"],
+                "Selection Status": candidate["selection_status"],
+                "Matched Skills": ", ".join(candidate["matched_skills"]),
+                "Missing Required Skills": ", ".join(
+                    candidate["missing_required_skills"]
+                ),
+                "Missing Preferred Skills": ", ".join(
+                    candidate["missing_preferred_skills"]
+                ),
+                "Partially Matched Skills": ", ".join(
+                    candidate["partially_matched_skills"]
+                ),
+                "Skill Gap Summary": candidate["skill_gap_summary"],
+                "Recommendations": ", ".join(
+                    candidate["recommendations"]
+                )
+            })
+
+        export_df = pd.DataFrame(export_data)
+
+        csv_data = export_df.to_csv(index=False)
+
+        st.download_button(
+            label="📥 Download Candidate Report",
+            data=csv_data,
+            file_name="talentmatch_candidates.csv",
+            mime="text/csv"
+        )
+
+        for candidate in filtered_candidates:
+
+            with st.expander(
+                f"👤 {candidate['name']} — "
+                f"Resume Score: {candidate['resume_score']}"
+            ):
+
+                st.write(
+                    f"**Selection Status:** "
+                    f"{candidate['selection_status']}"
+                )
+
+                st.subheader("✅ Matched Skills")
+
+                if candidate["matched_skills"]:
+                    for skill in candidate["matched_skills"]:
+                        st.write(f"• {skill}")
+                else:
+                    st.write("No matched skills recorded.")
+
+                st.subheader("❌ Missing Required Skills")
+
+                if candidate["missing_required_skills"]:
+                    for skill in candidate["missing_required_skills"]:
+                        st.write(f"• {skill}")
+                else:
+                    st.write("No missing required skills recorded.")
+
+                st.subheader("⭐ Missing Preferred Skills")
+
+                if candidate["missing_preferred_skills"]:
+                    for skill in candidate["missing_preferred_skills"]:
+                        st.write(f"• {skill}")
+                else:
+                    st.write("No missing preferred skills recorded.")
+
+                st.subheader("🟡 Partially Matched Skills")
+
+                if candidate["partially_matched_skills"]:
+                    for skill in candidate["partially_matched_skills"]:
+                        st.write(f"• {skill}")
+                else:
+                    st.write("No partially matched skills recorded.")
+
+                st.subheader("🧠 Skill Gap Summary")
+
+                if candidate["skill_gap_summary"]:
+                    st.write(candidate["skill_gap_summary"])
+                else:
+                    st.write("Skill gap analysis not available.")
+
+                st.subheader("💡 Recommendations")
+
+                if candidate["recommendations"]:
+                    for recommendation in candidate["recommendations"]:
+                        st.write(f"• {recommendation}")
+                else:
+                    st.write("No recommendations recorded.")
+
+    else:
+        st.info("No candidates found.")
+
+else:
+    st.error("Failed to load candidates.")

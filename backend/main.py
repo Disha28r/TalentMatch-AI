@@ -266,3 +266,51 @@ def update_skill_gap(
         "message": "Skill gap updated successfully",
         "candidate_id": candidate_id
     }
+    
+@app.get("/candidates")
+def get_candidates():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            candidate_id,
+            name,
+            resume_score,
+            resume_details,
+            matched_skills,
+            missing_required_skills,
+            missing_preferred_skills,
+            partially_matched_skills,
+            skill_gap_summary,
+            recommendations,
+            selection_status
+        FROM candidates
+        ORDER BY resume_score DESC;
+        """
+    )
+
+    rows = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    candidates = []
+
+    for row in rows:
+        candidates.append({
+            "candidate_id": row[0],
+            "name": row[1],
+            "resume_score": row[2],
+            "resume_details": row[3],
+            "matched_skills": row[4],
+            "missing_required_skills": row[5],
+            "missing_preferred_skills": row[6],
+            "partially_matched_skills": row[7],
+            "skill_gap_summary": row[8],
+            "recommendations": row[9],
+            "selection_status": row[10]
+        })
+
+    return candidates
