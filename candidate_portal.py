@@ -209,14 +209,26 @@ if st.session_state.interview_started:
     )
 
     ctx = webrtc_streamer(
+
         key=f"video_{current_question}",
+
         mode=WebRtcMode.SENDRECV,
+
+        rtc_configuration={
+            "iceServers": [
+                {"urls": ["stun:stun.l.google.com:19302"]}
+            ]
+        },
+
         media_stream_constraints={
             "video": True,
             "audio": True
         },
+
         video_processor_factory=VideoRecorder,
+
         in_recorder_factory=recorder_factory,
+
         async_processing=True
     )
                 
