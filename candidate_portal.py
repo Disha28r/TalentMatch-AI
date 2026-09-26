@@ -16,6 +16,16 @@ from streamlit_webrtc import (
     VideoProcessorBase
 )
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_BASE_URL = os.getenv(
+    "API_BASE_URL",
+    "http://127.0.0.1:8000"
+)
+
 def convert_webm_to_mp4(webm_file):
     mp4_file = Path(webm_file).with_suffix(".mp4")
 
@@ -81,7 +91,7 @@ if not interview_id:
 
 
 response = requests.get(
-    f"http://127.0.0.1:8000/interviews/{interview_id}"
+   f"{API_BASE_URL}/interviews/{interview_id}"
 )
 
 if response.status_code != 200:
@@ -310,7 +320,7 @@ if st.session_state.interview_started:
                     )
 
                     evaluation_response = requests.put(
-                        f"http://127.0.0.1:8000/interviews/{interview_id}/evaluation",
+                       f"{API_BASE_URL}/interviews/{interview_id}",
                         json=evaluation.model_dump()
                     )
 

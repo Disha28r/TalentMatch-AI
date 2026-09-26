@@ -9,6 +9,15 @@ import pandas as pd
 import streamlit as st
 from email_service import send_interview_email
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_BASE_URL = os.getenv(
+    "API_BASE_URL",
+    "http://127.0.0.1:8000"
+)
+
 from resume_parser import (
     parse_job_description,
     read_resume,
@@ -127,7 +136,7 @@ if st.button("🚀 Analyze Candidates"):
                     }
 
                     response = requests.post(
-                        "http://127.0.0.1:8000/candidates",
+                        f"{API_BASE_URL}/candidates",
                         json=candidate_data
                     )
 
@@ -212,7 +221,7 @@ if st.session_state.analysis_done:
                         }
 
                         response = requests.put(
-                            f"http://127.0.0.1:8000/candidates/{candidate['candidate_id']}/skill-gap",
+                           f"{API_BASE_URL}/candidates/{candidate['candidate_id']}/skill-gap",
                             json=skill_gap_data
                         )
 
@@ -319,7 +328,7 @@ if st.session_state.analysis_done:
                             }
 
                             response = requests.post(
-                                "http://127.0.0.1:8000/interviews",
+                                f"{API_BASE_URL}/interviews",
                                 json={
                                     "interview_id": interview_data["interview_id"],
                                     "candidate": interview_data["candidate"],
@@ -361,8 +370,13 @@ if st.session_state.analysis_done:
                             # Join Interview Link
                             # --------------------------
 
+                            candidate_portal_url = os.getenv(
+                                "CANDIDATE_PORTAL_URL",
+                                "http://localhost:8502"
+                            )
+
                             interview_link = (
-                                f"http://localhost:8502/?interview_id="
+                                f"{candidate_portal_url}/?interview_id="
                                 f"{interview['interview_id']}"
                             )
 
@@ -423,7 +437,9 @@ st.divider()
 
 st.header("📊 Recruiter Dashboard")
 
-response = requests.get("http://127.0.0.1:8000/candidates")
+response = requests.get(
+    f"{API_BASE_URL}/candidates"
+)
 
 if response.status_code == 200:
 

@@ -82,6 +82,38 @@ def create_candidates_table():
 
     connection.close()
     
-if __name__ == "__main__": 
-    create_candidates_table() 
-    print("Candidates table created successfully.")
+def create_full_interviews_table():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS interviews (
+            id SERIAL PRIMARY KEY,
+            interview_id VARCHAR(36) UNIQUE NOT NULL,
+            candidate VARCHAR(255) NOT NULL,
+            interview_date DATE NOT NULL,
+            interview_time TIME NOT NULL,
+            mode VARCHAR(50) NOT NULL,
+            questions JSONB,
+            overall_score INTEGER,
+            technical_knowledge INTEGER,
+            communication INTEGER,
+            problem_solving INTEGER,
+            strengths JSONB,
+            areas_for_improvement JSONB,
+            recommendation VARCHAR(50),
+            brief_feedback TEXT
+        );
+    """)
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    
+#if __name__ == "__main__": 
+    #create_candidates_table() 
+    #print("Candidates table created successfully.")
+    
+if __name__ == "__main__":
+    create_full_interviews_table()
+    print("Interviews table created successfully.")
