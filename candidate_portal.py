@@ -212,29 +212,18 @@ if st.session_state.interview_started:
         f"{API_BASE_URL}/webrtc/ice-servers"
     )
 
-    st.write("ICE API status:", ice_response.status_code)
-
     if ice_response.status_code == 200:
-        ice_servers = ice_response.json()["ice_servers"]
-        st.write("ICE servers received:", len(ice_servers))
-        st.write(
-            "ICE server details:",
-            [
-                {
-                    "urls": server.get("urls"),
-                    "has_username": bool(server.get("username")),
-                    "has_credential": bool(server.get("credential"))
-                }
-                for server in ice_servers
-            ]
-        )
-    else:
+        all_ice_servers = ice_response.json()["ice_servers"]
+
+        # Use Twilio TURN over TCP/443
         ice_servers = [
-            {"urls": ["stun:stun.l.google.com:19302"]}
+            server
+            for server in all_ice_servers
+            if "turn:global.turn.twilio.com:443?transport=tcp"
+            in server.get("urls", "")
         ]
 
-    if ice_response.status_code == 200:
-        ice_servers = ice_response.json()["ice_servers"]
+        st.write("TURN TCP/443 server selected:", len(ice_servers))
     else:
         ice_servers = [
             {"urls": ["stun:stun.l.google.com:19302"]}
