@@ -208,6 +208,17 @@ if st.session_state.interview_started:
     "Click STOP when you have finished answering."
     )
 
+    ice_response = requests.get(
+        f"{API_BASE_URL}/webrtc/ice-servers"
+    )
+
+    if ice_response.status_code == 200:
+        ice_servers = ice_response.json()["ice_servers"]
+    else:
+        ice_servers = [
+            {"urls": ["stun:stun.l.google.com:19302"]}
+        ]
+
     ctx = webrtc_streamer(
 
         key=f"video_{current_question}",

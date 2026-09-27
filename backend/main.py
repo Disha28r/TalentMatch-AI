@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from backend.database import get_connection
 from psycopg.types.json import Json
+import os
+from twilio.rest import Client
 
 app = FastAPI(
     title="TalentMatch AI API",
@@ -314,3 +316,18 @@ def get_candidates():
         })
 
     return candidates
+
+
+@app.get("/webrtc/ice-servers")
+def get_ice_servers():
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    api_key = os.getenv("TWILIO_API_KEY")
+    api_secret = os.getenv("TWILIO_API_SECRET")
+
+    client = Client(api_key, api_secret, account_sid)
+
+    token = client.tokens.create()
+
+    return {
+        "ice_servers": token.ice_servers
+    }
