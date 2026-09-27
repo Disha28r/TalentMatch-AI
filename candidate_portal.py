@@ -1,27 +1,14 @@
 import requests
 import streamlit as st
-import whisper
 import hashlib
-import av
-import subprocess
-from pathlib import Path
-import time
 from io import BytesIO
 from groq import Groq
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger("aioice").setLevel(logging.DEBUG)
 
 from audio_recorder_streamlit import audio_recorder
 from interview_evaluator import evaluate_interview
-from aiortc.contrib.media import MediaRecorder
-from streamlit_webrtc import (
-    webrtc_streamer,
-    WebRtcMode,
-    VideoProcessorBase
-)
+
+
 
 import os
 from dotenv import load_dotenv
@@ -272,54 +259,8 @@ browser_video_recorder = st.components.v2.component(
     """
 )
 
-def convert_webm_to_mp4(webm_file):
-    mp4_file = Path(webm_file).with_suffix(".mp4")
 
-    subprocess.run(
-        [
-            "ffmpeg",
-            "-y",
-            "-i",
-            str(webm_file),
-            "-c:v",
-            "libx264",
-            "-c:a",
-            "aac",
-            str(mp4_file)
-        ],
-        check=True
-    )
 
-    return str(mp4_file)
-
-def wait_and_convert_video(webm_file):
-    webm_path = Path(webm_file)
-
-    if not webm_path.exists():
-        return None
-
-    previous_size = -1
-
-    for _ in range(10):
-        current_size = webm_path.stat().st_size
-
-        if current_size == previous_size:
-            break
-
-        previous_size = current_size
-        time.sleep(0.5)
-
-    return convert_webm_to_mp4(webm_path)
-
-class VideoRecorder(VideoProcessorBase):
-
-    def recv(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-
-        return av.VideoFrame.from_ndarray(
-            img,
-            format="bgr24"
-        )
     
 
 # ---------------- Interview ID ----------------
@@ -437,11 +378,6 @@ if st.session_state.interview_started:
         st.session_state.last_audio_hash = None
 
     current_question = st.session_state.current_question
-    def recorder_factory():
-        return MediaRecorder(
-            f"interview_{interview_id}_question_{current_question + 1}.webm"
-        )
-
     st.markdown(
         f"### 🎤 Question {current_question + 1} of {len(questions)}"
     )
@@ -548,12 +484,6 @@ if st.session_state.interview_started:
 
                 st.session_state.answers[current_question] = answer
 
-                video_file = (
-                    f"interview_{interview_id}_question_{current_question + 1}.webm"
-                )
-
-                with st.spinner("🎥 Processing your final video..."):
-                    mp4_file = wait_and_convert_video(video_file)
 
                 if mp4_file:
                     st.success("✅ Final video saved successfully!")
