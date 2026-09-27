@@ -7,6 +7,11 @@ import subprocess
 from pathlib import Path
 import time
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("aioice").setLevel(logging.DEBUG)
+
 from audio_recorder_streamlit import audio_recorder
 from interview_evaluator import evaluate_interview
 from aiortc.contrib.media import MediaRecorder
