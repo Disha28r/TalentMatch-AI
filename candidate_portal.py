@@ -226,7 +226,8 @@ if st.session_state.interview_started:
         mode=WebRtcMode.SENDRECV,
 
         rtc_configuration={
-            "iceServers": ice_servers
+            "iceServers": ice_servers,
+            "iceTransportPolicy": "relay"
         },
 
         media_stream_constraints={
