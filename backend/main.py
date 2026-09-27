@@ -4,11 +4,24 @@ from backend.database import get_connection
 from psycopg.types.json import Json
 import os
 from twilio.rest import Client
+from fastapi import UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="TalentMatch AI API",
     description="Backend API for TalentMatch AI",
     version="1.0.0"
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8502",
+        "http://localhost:8503",
+        "https://talentmatch-candidate.onrender.com",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class Interview(BaseModel):
@@ -330,4 +343,26 @@ def get_ice_servers():
 
     return {
         "ice_servers": token.ice_servers
+    }
+    
+@app.post("/interviews/{interview_id}/video")
+async def upload_video(
+    interview_id: str,
+    question_number: int,
+    video: UploadFile = File(...)
+):
+    recordings_dir = "recordings"
+    os.makedirs(recordings_dir, exist_ok=True)
+
+    file_path = os.path.join(
+        recordings_dir,
+        f"interview_{interview_id}_question_{question_number}.webm"
+    )
+
+    with open(file_path, "wb") as f:
+        f.write(await video.read())
+
+    return {
+        "message": "Video uploaded successfully",
+        "file": file_path
     }

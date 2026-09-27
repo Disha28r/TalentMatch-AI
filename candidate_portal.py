@@ -30,6 +30,240 @@ API_BASE_URL = os.getenv(
     "API_BASE_URL",
     "http://127.0.0.1:8000"
 )
+browser_video_recorder = st.components.v2.component(
+    "browser_video_recorder",
+
+    html="""
+        <div>
+            <video
+                id="preview"
+                autoplay
+                muted
+                playsinline
+                style="width:100%; max-width:640px; border-radius:12px;"
+            ></video>
+
+            <div style="margin-top:12px;">
+                <button id="start">▶ Start Recording</button>
+                <button id="stop" disabled>⏹ Stop Recording</button>
+            </div>
+
+            <p id="status">Ready</p>
+        </div>
+    """,
+
+    css="""
+        button {
+            padding: 10px 16px;
+            margin-right: 8px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        #start {
+            background: #ff4b4b;
+            color: white;
+        }
+
+        #stop {
+            background: #444;
+            color: white;
+        }
+
+        #status {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    """,
+
+    js="""
+        export default function(component) {
+
+            const {
+                parentElement,
+                data,
+                setStateValue
+            } = component;
+
+            const video = parentElement.querySelector("#preview");
+            const startButton = parentElement.querySelector("#start");
+            const stopButton = parentElement.querySelector("#stop");
+            const status = parentElement.querySelector("#status");
+
+            let stream = null;
+            let recorder = null;
+            let chunks = [];
+
+            startButton.onclick = async () => {
+
+                try {
+
+                    status.textContent =
+                        "Requesting camera and microphone...";
+
+                    stream =
+                        await navigator.mediaDevices.getUserMedia({
+                            video: true,
+                            audio: true
+                        });
+
+                    video.srcObject = stream;
+
+                    const mimeTypes = [
+                        "video/webm;codecs=vp9,opus",
+                        "video/webm;codecs=vp8,opus",
+                        "video/webm"
+                    ];
+
+                    const mimeType = mimeTypes.find(
+                        type => MediaRecorder.isTypeSupported(type)
+                    );
+
+                    recorder = mimeType
+                        ? new MediaRecorder(
+                            stream,
+                            { mimeType }
+                        )
+                        : new MediaRecorder(stream);
+
+                    chunks = [];
+
+                    recorder.ondataavailable = (event) => {
+
+                        if (event.data.size > 0) {
+                            chunks.push(event.data);
+                        }
+
+                    };
+
+                    recorder.onstop = async () => {
+
+                        status.textContent =
+                            "Uploading video...";
+
+                        const blob = new Blob(
+                            chunks,
+                            {
+                                type:
+                                    recorder.mimeType ||
+                                    "video/webm"
+                            }
+                        );
+
+                        const formData = new FormData();
+
+                        formData.append(
+                            "video",
+                            blob,
+                            "interview_video.webm"
+                        );
+
+                        const url =
+                            `${data.apiBaseUrl}` +
+                            `/interviews/` +
+                            `${data.interviewId}` +
+                            `/video` +
+                            `?question_number=` +
+                            `${data.questionNumber}`;
+
+                        try {
+
+                            const response =
+                                await fetch(
+                                    url,
+                                    {
+                                        method: "POST",
+                                        body: formData
+                                    }
+                                );
+
+                            if (response.ok) {
+
+                                status.textContent =
+                                    "✅ Video uploaded successfully!";
+
+                                setStateValue(
+                                    "status",
+                                    "uploaded"
+                                );
+
+                            } else {
+
+                                const errorText =
+                                    await response.text();
+
+                                status.textContent =
+                                    "❌ Upload failed";
+
+                                setStateValue(
+                                    "status",
+                                    "error"
+                                );
+
+                                setStateValue(
+                                    "error",
+                                    errorText
+                                );
+                            }
+
+                        } catch (error) {
+
+                            status.textContent =
+                                "❌ Upload failed";
+
+                            setStateValue(
+                                "status",
+                                "error"
+                            );
+
+                            setStateValue(
+                                "error",
+                                error.message
+                            );
+                        }
+
+                        stream
+                            .getTracks()
+                            .forEach(
+                                track => track.stop()
+                            );
+
+                        video.srcObject = null;
+
+                    };
+
+                    recorder.start();
+
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+
+                    status.textContent =
+                        "🔴 Recording...";
+
+                } catch (error) {
+
+                    status.textContent =
+                        "❌ Camera/microphone error: " +
+                        error.message;
+                }
+            };
+
+            stopButton.onclick = () => {
+
+                if (
+                    recorder &&
+                    recorder.state !== "inactive"
+                ) {
+                    recorder.stop();
+                }
+
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            };
+        }
+    """
+)
 
 def convert_webm_to_mp4(webm_file):
     mp4_file = Path(webm_file).with_suffix(".mp4")
@@ -207,44 +441,19 @@ if st.session_state.interview_started:
 
     st.write(questions[current_question])
     st.markdown("### 🎥 Video Interview")
-    
+
     st.info(
-    "🎥 Click START to begin recording your answer. "
-    "Click STOP when you have finished answering."
+        "🎥 Click START to begin recording your answer. "
+        "Click STOP when you have finished answering."
     )
 
-    ice_response = requests.get(
-        f"{API_BASE_URL}/webrtc/ice-servers"
-    )
-
-    if ice_response.status_code == 200:
-        ice_servers = ice_response.json()["ice_servers"]
-    else:
-        ice_servers = [
-            {"urls": ["stun:stun.l.google.com:19302"]}
-        ]
-
-    ctx = webrtc_streamer(
-
-        key=f"video_{current_question}",
-
-        mode=WebRtcMode.SENDRECV,
-
-        rtc_configuration={
-            "iceServers": ice_servers,
-            "iceTransportPolicy": "relay"
+    video_result = browser_video_recorder(
+        data={
+            "apiBaseUrl": API_BASE_URL,
+            "interviewId": interview_id,
+            "questionNumber": current_question + 1
         },
-
-        media_stream_constraints={
-            "video": True,
-            "audio": True
-        },
-
-        video_processor_factory=VideoRecorder,
-
-        in_recorder_factory=recorder_factory,
-
-        async_processing=True
+        key=f"browser_video_{current_question}"
     )
                 
     st.write("🎙️ Or answer by speaking:")
@@ -296,28 +505,28 @@ if st.session_state.interview_started:
 
     if current_question < len(questions) - 1:
 
-        if st.button("Next →"):
 
-            st.session_state.answers[current_question] = answer
+            if st.button("Next →"):
 
-            video_file = (
-                f"interview_{interview_id}_question_{current_question + 1}.webm"
-            )
+                st.session_state.answers[current_question] = answer
 
-            with st.spinner("🎥 Processing your video..."):
-                mp4_file = wait_and_convert_video(video_file)
+                st.session_state.current_question += 1
 
-            if mp4_file:
-                st.success("✅ Video saved successfully!")
+                next_question = st.session_state.current_question
 
-            st.session_state.current_question += 1
+                st.session_state[f"answer_{next_question}"] = ""
+                st.session_state.transcripts[next_question] = ""
 
-            next_question = st.session_state.current_question
+                st.rerun()
 
-            st.session_state[f"answer_{next_question}"] = ""
-            st.session_state.transcripts[next_question] = ""
+                st.session_state.current_question += 1
 
-            st.rerun()
+                next_question = st.session_state.current_question
+
+                st.session_state[f"answer_{next_question}"] = ""
+                st.session_state.transcripts[next_question] = ""
+
+                st.rerun()
 
     else:
 
@@ -347,7 +556,7 @@ if st.session_state.interview_started:
                     )
 
                     evaluation_response = requests.put(
-                       f"{API_BASE_URL}/interviews/{interview_id}",
+                        f"{API_BASE_URL}/interviews/{interview_id}/evaluation",
                         json=evaluation.model_dump()
                     )
 
