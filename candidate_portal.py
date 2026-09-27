@@ -6,6 +6,8 @@ import av
 import subprocess
 from pathlib import Path
 import time
+from io import BytesIO
+from groq import Groq
 
 import logging
 
@@ -30,6 +32,11 @@ API_BASE_URL = os.getenv(
     "API_BASE_URL",
     "http://127.0.0.1:8000"
 )
+
+groq_client = Groq(
+    api_key=os.getenv("GROQ_API_KEY")
+)
+
 browser_video_recorder = st.components.v2.component(
     "browser_video_recorder",
 
@@ -474,14 +481,19 @@ if st.session_state.interview_started:
             st.session_state.last_audio_hash = audio_hash
 
             with st.spinner("🤖 Transcribing your answer..."):
-                model = whisper.load_model("base")
 
-                with open("answer.wav", "wb") as f:
-                    f.write(audio)
+                audio_file = BytesIO(audio)
+                audio_file.name = "answer.wav"
 
-                result = model.transcribe("answer.wav")
+                transcription = groq_client.audio.transcriptions.create(
+                    file=audio_file,
+                    model="whisper-large-v3-turbo",
+                    response_format="json",
+                    language="en",
+                    temperature=0.0
+                )
 
-            transcript = result["text"]
+            transcript = transcription.text
 
             st.session_state.transcripts[current_question] = transcript
             st.session_state[f"answer_{current_question}"] = transcript
