@@ -212,6 +212,23 @@ if st.session_state.interview_started:
         f"{API_BASE_URL}/webrtc/ice-servers"
     )
 
+    st.write("ICE API status:", ice_response.status_code)
+
+    if ice_response.status_code == 200:
+        ice_servers = ice_response.json()["ice_servers"]
+        st.write("ICE servers received:", len(ice_servers))
+        st.write(
+            "ICE server URLs:",
+            [
+                server.get("urls")
+                for server in ice_servers
+            ]
+        )
+    else:
+        ice_servers = [
+            {"urls": ["stun:stun.l.google.com:19302"]}
+        ]
+
     if ice_response.status_code == 200:
         ice_servers = ice_response.json()["ice_servers"]
     else:
@@ -226,9 +243,7 @@ if st.session_state.interview_started:
         mode=WebRtcMode.SENDRECV,
 
         rtc_configuration={
-            "iceServers": [
-                {"urls": ["stun:stun.l.google.com:19302"]}
-            ]
+            "iceServers": ice_servers
         },
 
         media_stream_constraints={
