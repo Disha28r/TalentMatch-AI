@@ -218,9 +218,13 @@ if st.session_state.interview_started:
         ice_servers = ice_response.json()["ice_servers"]
         st.write("ICE servers received:", len(ice_servers))
         st.write(
-            "ICE server URLs:",
+            "ICE server details:",
             [
-                server.get("urls")
+                {
+                    "urls": server.get("urls"),
+                    "has_username": bool(server.get("username")),
+                    "has_credential": bool(server.get("credential"))
+                }
                 for server in ice_servers
             ]
         )
