@@ -492,6 +492,17 @@ Candidate Portal
 
 ---
 
+## ⚠️ Limitations
+
+- AI-generated resume scores and interview evaluations may not always be fully accurate or consistent.
+- The current version does not include recruiter or candidate authentication.
+- Interview links currently rely on unique interview IDs rather than full user authentication.
+- Interview recordings are uploaded through the application and are not yet managed through dedicated cloud storage.
+- The application is designed as a functional prototype and has not yet been optimized for large-scale concurrent usage.
+- AI processing can be affected by model availability, API limits, and network connectivity.
+- The current system has limited automated testing and monitoring.
+- AI-based candidate recommendations should support recruiter decision-making rather than replace human review.
+
 ## 🔮 Future Improvements
 
 - Cloud storage for interview recordings
