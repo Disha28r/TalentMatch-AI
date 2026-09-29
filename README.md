@@ -481,31 +481,6 @@ Candidate Portal
 ```
 
 ---
-
-## 📸 Screenshots
-
-### Recruiter Dashboard
-
-<img width="1875" height="870" alt="Recruiter Dashboard" src="https://github.com/user-attachments/assets/c32f6834-5e4d-45d0-a342-ea72962f5737" />
-
-### Resume Analysis
-
-<img width="1428" height="712" alt="Resume Analysis" src="https://github.com/user-attachments/assets/f5eef1bc-2f5f-4d42-87b2-b8efabeda3f1" />
-
-### Candidate Ranking
-
-<img width="1722" height="748" alt="Candidate Ranking" src="https://github.com/user-attachments/assets/68b984eb-ad66-4804-99fb-1f519d9ecf2c" />
-
-### AI-Generated Interview Questions
-
-<img width="1528" height="856" alt="Interview Questions" src="https://github.com/user-attachments/assets/271cf67a-c01f-411a-9750-60827a3aa141" />
-
-### Candidate Interview Portal
-
-<img width="1882" height="710" alt="Candidate Interview Portal" src="https://github.com/user-attachments/assets/423e4bf8-4864-4f7e-8fb7-34349f871e32" />
-
----
-
 ## 🎯 Use Cases
 
 - HR Teams
