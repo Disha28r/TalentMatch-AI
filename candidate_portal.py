@@ -485,8 +485,6 @@ if st.session_state.interview_started:
                 st.session_state.answers[current_question] = answer
 
 
-                if mp4_file:
-                    st.success("✅ Final video saved successfully!")
 
                 st.session_state.interview_completed = True
 
