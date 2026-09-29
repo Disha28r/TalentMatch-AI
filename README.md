@@ -9,17 +9,21 @@ TalentMatch AI combines AI-powered resume analysis with a recruiter dashboard an
 ## 🚀 Live Demo
 
 ### 👩‍💼 Recruiter Portal
+
 https://talentmatch-recruiter.onrender.com/
 
 ### 👤 Candidate Portal
+
 https://talentmatch-candidate.onrender.com/
 
 > The Candidate Portal requires a valid interview link containing an `interview_id`.
 
 ### ⚙️ Backend API
+
 https://talentmatch-ai-rgky.onrender.com/
 
 ### ❤️ API Health Check
+
 https://talentmatch-ai-rgky.onrender.com/health
 
 ---
@@ -32,7 +36,7 @@ https://talentmatch-ai-rgky.onrender.com/health
 - Upload multiple resumes in PDF or DOCX format
 - Extract candidate information using AI
 - Compare resumes against the Job Description
-- Generate a candidate match score
+- Generate candidate match scores
 - Rank candidates based on the match score
 
 ### 🎯 Skill Gap Analysis
@@ -211,7 +215,13 @@ The deployed application uses Neon PostgreSQL.
                                                  │
                                                  ▼
                                            PostgreSQL
-📂 Project Structure
+```
+
+---
+
+## 📂 Project Structure
+
+```text
 TalentMatch-AI/
 │
 ├── backend/
@@ -228,63 +238,74 @@ TalentMatch-AI/
 ├── uv.lock                      # Locked dependency versions
 ├── README.md
 └── .gitignore
-🔄 How It Works
-1. Upload Job Description
+```
+
+---
+
+## 🔄 How It Works
+
+### 1. Upload Job Description
 
 The recruiter provides a Job Description through the Recruiter Portal.
 
-2. Upload Resumes
+### 2. Upload Resumes
 
 Multiple candidate resumes can be uploaded in PDF or DOCX format.
 
-3. Resume Analysis
+### 3. Resume Analysis
 
 The system extracts candidate information such as:
 
-Name
-Skills
-Experience
-Education
-Certifications
-Projects
-4. Candidate Matching
+- Name
+- Skills
+- Experience
+- Education
+- Certifications
+- Projects
+
+### 4. Candidate Matching
 
 Each resume is analyzed against the Job Description and assigned a match score.
 
-5. Skill Gap Analysis
+### 5. Skill Gap Analysis
 
 TalentMatch AI identifies matched, missing, and partially matched skills and generates recommendations.
 
-6. Recruiter Dashboard
+### 6. Recruiter Dashboard
 
 Recruiters can search and filter candidates, inspect candidate details, and export candidate information.
 
-7. Interview Generation
+### 7. Interview Generation
 
 AI generates interview questions based on the Job Description and candidate profile.
 
-8. Interview Scheduling
+### 8. Interview Scheduling
 
 The recruiter schedules the candidate's interview and generates a unique interview link.
 
-9. Candidate Interview
+### 9. Candidate Interview
 
 The candidate opens the interview link and answers questions through the Candidate Portal.
 
 Candidates can provide:
 
-Text answers
-Voice answers
-Video answers
-10. Speech-to-Text
+- Text answers
+- Voice answers
+- Video answers
+
+### 10. Speech-to-Text
 
 Voice responses are transcribed using Groq Speech-to-Text.
 
-11. AI Interview Evaluation
+### 11. AI Interview Evaluation
 
 The candidate's submitted answers are evaluated by AI and the evaluation is stored in PostgreSQL.
 
-📊 Example Candidate Analysis
+---
+
+## 📊 Example Candidate Analysis
+
+```text
 Candidate: Alice Johnson
 
 Resume Score: 94/100
@@ -307,7 +328,13 @@ Additional experience with Docker would strengthen the profile.
 
 Selection Status:
 Pending
-🤖 Example Interview Evaluation
+```
+
+---
+
+## 🤖 Example Interview Evaluation
+
+```text
 Overall Score: 86/100
 
 Technical Knowledge: 88/100
@@ -328,25 +355,45 @@ Proceed to next round
 
 Brief Feedback:
 Strong technical performance with clear communication.
-⚙️ Local Setup
-1. Clone the repository
+```
+
+---
+
+## ⚙️ Local Setup
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/Disha28r/TalentMatch-AI.git
-2. Move into the project
+```
+
+### 2. Move into the project
+
+```bash
 cd TalentMatch-AI
-3. Install dependencies
+```
 
-This project uses uv for dependency management.
+### 3. Install dependencies
 
+This project uses `uv` for dependency management.
+
+```bash
 uv sync
-4. Activate the virtual environment
+```
+
+### 4. Activate the virtual environment
 
 Windows:
 
+```powershell
 .venv\Scripts\activate
-5. Create .env
+```
 
-Create a .env file in the project root.
+### 5. Create `.env`
 
+Create a `.env` file in the project root.
+
+```env
 GROQ_API_KEY=your_groq_api_key
 
 DATABASE_URL=your_postgresql_connection_string
@@ -360,36 +407,60 @@ QDRANT_API_KEY=your_qdrant_api_key
 
 EMAIL_ADDRESS=your_email
 EMAIL_APP_PASSWORD=your_email_app_password
+```
 
-Never commit your .env file or expose API keys publicly.
+> Never commit your `.env` file or expose API keys publicly.
 
-▶️ Running the Application
-Start the FastAPI backend
+---
+
+## ▶️ Running the Application
+
+### Start the FastAPI Backend
+
+```bash
 python -m uvicorn backend.main:app --reload --port 8000
-Start the Recruiter Portal
+```
+
+### Start the Recruiter Portal
+
+```bash
 streamlit run app1.py
-Start the Candidate Portal
+```
+
+### Start the Candidate Portal
+
+```bash
 streamlit run candidate_portal.py --server.port 8502
-🔐 Environment Variables
-Variable	Purpose
-GROQ_API_KEY	Groq AI and Speech-to-Text
-DATABASE_URL	PostgreSQL database connection
-API_BASE_URL	FastAPI backend URL
-CANDIDATE_PORTAL_URL	Candidate interview portal URL
-QDRANT_URL	Qdrant configuration
-QDRANT_API_KEY	Qdrant authentication
-EMAIL_ADDRESS	Email sender
-EMAIL_APP_PASSWORD	Email authentication
-☁️ Deployment
+```
+
+---
+
+## 🔐 Environment Variables
+
+| Variable | Purpose |
+|---|---|
+| `GROQ_API_KEY` | Groq AI and Speech-to-Text |
+| `DATABASE_URL` | PostgreSQL database connection |
+| `API_BASE_URL` | FastAPI backend URL |
+| `CANDIDATE_PORTAL_URL` | Candidate interview portal URL |
+| `QDRANT_URL` | Qdrant configuration |
+| `QDRANT_API_KEY` | Qdrant authentication |
+| `EMAIL_ADDRESS` | Email sender |
+| `EMAIL_APP_PASSWORD` | Email authentication |
+
+---
+
+## ☁️ Deployment
 
 TalentMatch AI is deployed using:
 
-Render — Application hosting
-Neon — PostgreSQL database
-Groq — AI processing and Speech-to-Text
+- **Render** — Application hosting
+- **Neon** — PostgreSQL database
+- **Groq** — AI processing and Speech-to-Text
 
 The application is deployed as separate services:
 
+```text
 Recruiter Portal
        │
        ▼
@@ -407,63 +478,96 @@ Candidate Portal
        ├── Video Upload
        ├── Interview Data
        └── Interview Evaluation
-📸 Screenshots
-Recruiter Dashboard
+```
+
+---
+
+## 📸 Screenshots
+
+### Recruiter Dashboard
+
 <img width="1875" height="870" alt="Recruiter Dashboard" src="https://github.com/user-attachments/assets/c32f6834-5e4d-45d0-a342-ea72962f5737" />
-Resume Analysis
+
+### Resume Analysis
+
 <img width="1428" height="712" alt="Resume Analysis" src="https://github.com/user-attachments/assets/f5eef1bc-2f5f-4d42-87b2-b8efabeda3f1" />
-Candidate Ranking
+
+### Candidate Ranking
+
 <img width="1722" height="748" alt="Candidate Ranking" src="https://github.com/user-attachments/assets/68b984eb-ad66-4804-99fb-1f519d9ecf2c" />
-AI-Generated Interview Questions
+
+### AI-Generated Interview Questions
+
 <img width="1528" height="856" alt="Interview Questions" src="https://github.com/user-attachments/assets/271cf67a-c01f-411a-9750-60827a3aa141" />
-Candidate Interview Portal
-<img width="1882" height="710" alt="Candidate Interview Portal" src="https://github.com/user-attachments/assets/423e4bf8-4864-8f7e-34349f871e32" />
-🎯 Use Cases
-HR Teams
-Recruiters
-Hiring Managers
-Startups
-Campus Hiring
-Recruitment Agencies
-🔮 Future Improvements
-Cloud storage for interview recordings
-Recruiter authentication
-Candidate authentication
-Role-based access control
-Advanced recruiter analytics
-Interview calendar integration
-Automated interview reminders
-Evaluation history and reporting
-Improved candidate recommendation workflows
-Production-grade API security
-📚 What I Learned
+
+### Candidate Interview Portal
+
+<img width="1882" height="710" alt="Candidate Interview Portal" src="https://github.com/user-attachments/assets/423e4bf8-4864-4f7e-8fb7-34349f871e32" />
+
+---
+
+## 🎯 Use Cases
+
+- HR Teams
+- Recruiters
+- Hiring Managers
+- Startups
+- Campus Hiring
+- Recruitment Agencies
+
+---
+
+## 🔮 Future Improvements
+
+- Cloud storage for interview recordings
+- Recruiter authentication
+- Candidate authentication
+- Role-based access control
+- Advanced recruiter analytics
+- Interview calendar integration
+- Automated interview reminders
+- Evaluation history and reporting
+- Improved candidate recommendation workflows
+- Production-grade API security
+
+---
+
+## 📚 What I Learned
 
 Building TalentMatch AI gave me hands-on experience with:
 
-LLM integration
-Prompt engineering
-Resume parsing
-Candidate matching
-Skill-gap analysis
-FastAPI development
-REST API integration
-PostgreSQL
-Streamlit
-Browser-based media recording
-Speech-to-text
-AI interview evaluation
-Cloud deployment
-Git and GitHub
-Debugging production issues
-👩‍💻 Author
-Disha R
+- LLM integration
+- Prompt engineering
+- Resume parsing
+- Candidate matching
+- Skill-gap analysis
+- FastAPI development
+- REST API integration
+- PostgreSQL
+- Streamlit
+- Browser-based media recording
+- Speech-to-text
+- AI interview evaluation
+- Cloud deployment
+- Git and GitHub
+- Debugging production issues
+
+---
+
+## 👩‍💻 Author
+
+### Disha R
 
 💼 LinkedIn:
+
 https://www.linkedin.com/in/dishar28
 
 🐙 GitHub:
+
 https://github.com/Disha28r
 
-⭐ Support
+---
+
+## ⭐ Support
 
 If you found this project interesting, consider giving the repository a ⭐ on GitHub!
