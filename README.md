@@ -52,13 +52,19 @@ TalentMatch AI identifies:
 
 ### 📊 Recruiter Dashboard
 
+TalentMatch AI provides a dedicated recruiter dashboard for managing the hiring pipeline.
+
 Recruiters can:
 
-- Search candidates
+- Search candidates by name
 - Filter candidates by resume score
 - Filter candidates by selection status
-- View candidate details
-- View skill-gap analysis
+- View candidate match scores
+- Review matched and missing skills
+- Review skill-gap summaries and recommendations
+- Track candidates through Pending, Selected and Rejected stages
+- Select or reject candidates directly from the dashboard
+- Monitor the hiring pipeline
 - Export candidate information as CSV
 
 ### 💬 AI-Generated Interview Questions
@@ -116,52 +122,43 @@ The deployed application uses Neon PostgreSQL.
 
 ## 🛠️ Tech Stack
 
-### Programming Language
-
-- Python
-
 ### Frontend
-
 - Streamlit
-- Browser-based media recording
+- HTML / CSS
+- Browser MediaRecorder API
 
 ### Backend
-
+- Python
 - FastAPI
 - Uvicorn
-- Pydantic
 
-### AI
-
+### AI / Machine Learning
 - Groq API
-- LLM-based resume analysis
-- AI candidate matching
-- AI interview question generation
+- LLM-based Resume Parsing
+- AI Candidate Matching
+- AI Skill Gap Analysis
+- AI Interview Question Generation
+- AI Interview Evaluation
 - Groq Speech-to-Text
-- AI interview evaluation
 
 ### Database
-
 - PostgreSQL
 - Neon
 
-### Resume Processing
-
+### Document Processing
 - PyPDF
 - python-docx
 
 ### Data & Utilities
-
 - Pandas
-- Requests
-- python-dotenv
+- Pydantic
+- Python-dotenv
 
 ### Development & Deployment
-
 - Git
 - GitHub
-- uv
 - Render
+- uv
 
 ---
 
@@ -252,9 +249,9 @@ The recruiter provides a Job Description through the Recruiter Portal.
 
 Multiple candidate resumes can be uploaded in PDF or DOCX format.
 
-### 3. Resume Analysis
+### 3. AI Resume Analysis
 
-The system extracts candidate information such as:
+TalentMatch AI extracts candidate information such as:
 
 - Name
 - Skills
@@ -265,15 +262,33 @@ The system extracts candidate information such as:
 
 ### 4. Candidate Matching
 
-Each resume is analyzed against the Job Description and assigned a match score.
+Each resume is analyzed against the Job Description and assigned an AI-generated match score.
+
+Candidates are ranked based on their resume-to-role match.
 
 ### 5. Skill Gap Analysis
 
-TalentMatch AI identifies matched, missing, and partially matched skills and generates recommendations.
+The system identifies:
+
+- Matched skills
+- Missing required skills
+- Missing preferred skills
+- Partially matched skills
+- Skill-gap summary
+- Recommendations
 
 ### 6. Recruiter Dashboard
 
-Recruiters can search and filter candidates, inspect candidate details, and export candidate information.
+Recruiters can review candidates through a dedicated dashboard containing:
+
+- Candidate metrics
+- Average resume score
+- Hiring pipeline
+- Candidate search and filters
+- Candidate skill analysis
+- Selection status
+
+Recruiters can also mark candidates as **Selected** or **Rejected**, with the status persisted in PostgreSQL.
 
 ### 7. Interview Generation
 
@@ -285,13 +300,11 @@ The recruiter schedules the candidate's interview and generates a unique intervi
 
 ### 9. Candidate Interview
 
-The candidate opens the interview link and answers questions through the Candidate Portal.
+The candidate opens the interview link through the Candidate Portal and answers questions using:
 
-Candidates can provide:
-
-- Text answers
-- Voice answers
-- Video answers
+- Text
+- Voice
+- Video
 
 ### 10. Speech-to-Text
 
@@ -299,7 +312,20 @@ Voice responses are transcribed using Groq Speech-to-Text.
 
 ### 11. AI Interview Evaluation
 
-The candidate's submitted answers are evaluated by AI and the evaluation is stored in PostgreSQL.
+The submitted interview responses are evaluated by AI.
+
+The system generates:
+
+- Overall Score
+- Technical Knowledge
+- Communication
+- Problem Solving
+- Strengths
+- Areas for Improvement
+- Recommendation
+- Brief Feedback
+
+The evaluation is stored in PostgreSQL.
 
 ---
 
