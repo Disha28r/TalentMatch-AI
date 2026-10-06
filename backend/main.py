@@ -330,7 +330,37 @@ def get_candidates():
 
     return candidates
 
+@app.put("/candidates/{candidate_id}/status")
+def update_candidate_status(
+    candidate_id: str,
+    status: str
+):
+    connection = get_connection()
+    cursor = connection.cursor()
 
+    cursor.execute(
+        """
+        UPDATE candidates
+        SET selection_status = %s
+        WHERE candidate_id = %s;
+        """,
+        (
+            status,
+            candidate_id
+        )
+    )
+
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    return {
+        "message": "Candidate status updated successfully",
+        "candidate_id": candidate_id,
+        "selection_status": status
+    }
+    
 @app.get("/webrtc/ice-servers")
 def get_ice_servers():
     account_sid = os.getenv("TWILIO_ACCOUNT_SID")
